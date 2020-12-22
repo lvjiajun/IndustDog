@@ -1,0 +1,201 @@
+    /**
+     * 读取[01 Coil Status 0x]类型 开关数据
+     *
+     * @param slaveId slaveId
+     * @param offset  位置
+     * @return 读取值
+     * @throws ModbusTransportException 异常
+     * @throws ErrorResponseException   异常
+     * @throws ModbusInitException      异常
+     */
+    public Boolean readCoilStatus(ModbusMaster master, int slaveId, int offset)
+            throws ModbusTransportException, ErrorResponseException, ModbusInitException {
+        // 01 Coil Status
+
+        BaseLocator<Boolean> loc = BaseLocator.coilStatus(slaveId, offset);
+        Boolean value = master.getValue(loc);
+        return value;
+    }
+    /**
+     * 读取[02 Input Status 1x]类型 开关数据
+     *
+     * @param slaveId
+     * @param offset
+     * @return
+     * @throws ModbusTransportException
+     * @throws ErrorResponseException
+     * @throws ModbusInitException
+     */
+    public Boolean readInputStatus(ModbusMaster master, int slaveId, int offset) throws ModbusTransportException, ErrorResponseException {
+        // 02 Input Status
+        BaseLocator<Boolean> loc = BaseLocator.inputStatus(slaveId, offset);
+        Boolean value = master.getValue(loc);
+        return value;
+    }
+
+    /**
+     * 读取[03 Holding Register类型 2x]模拟量数据
+     *
+     * @param slaveId  slave Id
+     * @param offset   位置
+     * @param dataType 数据类型,来自com.serotonin.modbus4j.code.DataType
+     * @return
+     * @throws ModbusTransportException 异常
+     * @throws ErrorResponseException   异常
+     * @throws ModbusInitException      异常
+     */
+    public Number readHoldingRegister(ModbusMaster master, int slaveId, int offset, int dataType)
+            throws ModbusTransportException, ErrorResponseException, ModbusInitException {
+        // 03 Holding Register类型数据读取
+        BaseLocator<Number> loc = BaseLocator.holdingRegister(slaveId, offset, dataType);
+        Number value = master.getValue(loc);
+        return value;
+    }
+
+    /**
+     * 读取[04 Input Registers 3x]类型 模拟量数据
+     *
+     * @param slaveId  slaveId
+     * @param offset   位置
+     * @param dataType 数据类型,来自com.serotonin.modbus4j.code.DataType
+     * @return 返回结果
+     * @throws ModbusTransportException 异常
+     * @throws ErrorResponseException   异常
+     * @throws ModbusInitException      异常
+     */
+    public Number readInputRegisters(ModbusMaster master, int slaveId, int offset, int dataType)
+            throws ModbusTransportException, ErrorResponseException, ModbusInitException {
+        // 04 Input Registers类型数据读取
+        BaseLocator<Number> loc = BaseLocator.inputRegister(slaveId, offset, dataType);
+        Number value = master.getValue(loc);
+        return value;
+    }
+
+    /**
+     * 批量读取使用方法
+     *
+     * @throws ModbusTransportException
+     * @throws ErrorResponseException
+     * @throws ModbusInitException
+     */
+    public List<String> batchRead(ModbusMaster master, ArrayList<Integer> data) throws ModbusTransportException, ErrorResponseException, ModbusInitException {
+
+        BatchRead<Integer> batch = new BatchRead<Integer>();
+
+        for (int i=0;i<data.size();i++){
+            batch.addLocator(i, BaseLocator.holdingRegister(1, data.get(i), DataType.TWO_BYTE_INT_SIGNED));
+        }
+
+        List<String> numbers = new ArrayList<>();
+        batch.setContiguousRequests(false);
+        BatchResults<Integer> results = master.send(batch);
+        for (int i=0;i<data.size();i++){
+            numbers.add(results.getValue(i).toString());
+        }
+
+        return numbers;
+    }
+
+
+    /**
+     * 写 [01 Coil Status(0x)]写一个 function ID = 5
+     *
+     * @param slaveId     slave的ID
+     * @param writeOffset 位置
+     * @param writeValue  值
+     * @return 是否写入成功
+     * @throws ModbusTransportException
+     * @throws ModbusInitException
+     */
+    public boolean writeCoil(ModbusMaster master, int slaveId, int writeOffset, boolean writeValue)
+            throws ModbusTransportException, ModbusInitException {
+        // 获取master
+        ModbusMaster tcpMaster = master;
+        // 创建请求
+        WriteCoilRequest request = new WriteCoilRequest(slaveId, writeOffset, writeValue);
+        // 发送请求并获取响应对象
+        WriteCoilResponse response = (WriteCoilResponse) tcpMaster.send(request);
+        if (response.isException()) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * 写[01 Coil Status(0x)] 写多个 function ID = 15
+     *
+     * @param slaveId     slaveId
+     * @param startOffset 开始位置
+     * @param bdata       写入的数据
+     * @return 是否写入成功
+     * @throws ModbusTransportException
+     * @throws ModbusInitException
+     */
+    public boolean writeCoils(ModbusMaster master, int slaveId, int startOffset, boolean[] bdata)
+            throws ModbusTransportException, ModbusInitException {
+        // 获取master
+        ModbusMaster tcpMaster = master;
+        // 创建请求
+        WriteCoilsRequest request = new WriteCoilsRequest(slaveId, startOffset, bdata);
+        // 发送请求并获取响应对象
+        WriteCoilsResponse response = (WriteCoilsResponse) tcpMaster.send(request);
+        if (response.isException()) {
+            return false;
+        } else {
+            return true;
+        }
+
+    }
+
+    /***
+     * 写[03 Holding Register(4x)] 写一个 function ID = 6
+     *
+     * @param slaveId
+     * @param writeOffset
+     * @param writeValue
+     * @return
+     * @throws ModbusTransportException
+     * @throws ModbusInitException
+     */
+    public boolean writeRegister(ModbusMaster master, int slaveId, int writeOffset, short writeValue)
+            throws ModbusTransportException, ModbusInitException {
+        // 获取master
+        ModbusMaster tcpMaster = master;
+        // 创建请求对象
+        WriteRegisterRequest request = new WriteRegisterRequest(slaveId, writeOffset, writeValue);
+        WriteRegisterResponse response = (WriteRegisterResponse) tcpMaster.send(request);
+        if (response.isException()) {
+            log.error(response.getExceptionMessage());
+            return false;
+        } else {
+            return true;
+        }
+
+    }
+
+    /**
+     * 写入[03 Holding Register(4x)]写多个 function ID=16
+     *
+     * @param slaveId     modbus的slaveID
+     * @param startOffset 起始位置偏移量值
+     * @param sdata       写入的数据
+     * @return 返回是否写入成功
+     * @throws ModbusTransportException
+     * @throws ModbusInitException
+     */
+    public boolean writeRegisters(ModbusMaster master, int slaveId, int startOffset, short[] sdata)
+            throws ModbusTransportException, ModbusInitException {
+        // 获取master
+        ModbusMaster tcpMaster = master;
+        // 创建请求对象
+        WriteRegistersRequest request = new WriteRegistersRequest(slaveId, startOffset, sdata);
+        // 发送请求并获取响应对象
+        ModbusResponse response = tcpMaster.send(request);
+        if (response.isException()) {
+            log.error(response.getExceptionMessage());
+            return false;
+        } else {
+            return true;
+        }
+    }

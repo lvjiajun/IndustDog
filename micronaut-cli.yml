@@ -1,0 +1,6 @@
+applicationType: default
+defaultPackage: com.gree
+testFramework: junit
+sourceLanguage: java
+buildTool: maven
+features: [ app-name, docker, http-client, java, java-application, junit, log4j2, maven, netty-server, readme, security, security-annotations, shade, yaml ]

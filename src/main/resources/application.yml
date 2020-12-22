@@ -1,0 +1,60 @@
+micronaut:
+  security:
+    enabled: false
+  application:
+    name: cloudjumper
+  server:
+    port: 8080
+  openapi:
+    views:
+      spec: redoc
+      enabled: true
+      rapidoc:
+        enabled: true
+      swagger-ui:
+        enabled: true
+        theme: flattop
+
+  router:
+    static-resources:
+      swagger:
+        paths: classpath:META-INF/swagger
+        mapping: /swagger/**
+      swagger-ui:
+        paths: classpath:META-INF/swagger/views/swagger-ui
+        mapping: /swagger-ui/**
+TcsClient:
+  organization: micronaut
+  repository: vehicles
+  apiversion: v1
+connect:
+  tcpServer: 18620
+  udpClient: 8001
+  udpServer: 8002
+proto:
+  versionIndex: 0x00
+  versionId: 0x01
+  cmdIndex: 0x01
+  cmdActive: 0x01
+  cmdPassive: 0x03
+  masterIndex: 0x02
+  masterId: 0x25BFFA60
+  nodeIndex: 0x06
+  nodeList: [0x000546CD,0x000546C8,0x000546C9,0x000568C3]
+  nodePort: [ 19000,19001,19002,19003]
+  point: [
+    ["Point-00030034","Point-00030036"],
+    ["Point-00990034","Point-00990035"],
+    ["Point-01110034","Point-01110035"],
+    ["Point-00430030","Point-00430028"]
+  ]
+  packSizeIndex: 0x19
+  packIndex: 0x1b
+Singthread:
+  corePoolSize: 1
+  maximumPoolSize: 1
+  keepAliveTime: 2
+  capacity: 15
+Tcs:
+  tcsclient: 127.0.0.1
+  tcsport: 55200
